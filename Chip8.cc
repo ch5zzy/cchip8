@@ -39,21 +39,17 @@ void Chip8::draw(uint8_t x, uint8_t y, uint8_t n) {
         for (int xx = 0; xx < 8; ++xx) {
             // Don't draw sprites partially outside of the screen.
             if (inBounds && (x + xx >= DISPLAY_WIDTH || y + yy >= DISPLAY_HEIGHT)) break;
-
-            // Get the position of the pixel.
-            int dx = x % DISPLAY_WIDTH + xx;
-            int dy = y % DISPLAY_HEIGHT + yy;
             inBounds = true;
 
             // Calculate the bit for this pixel.
             int newBit = (memory[j] >> (7 - xx)) & 1;
-            int oldBit = display[dx][dy];
+            int oldBit = display[(y + j) * DISPLAY_WIDTH + (x + xx)];
 
             // Set the flag register.
             if (oldBit & !(oldBit ^ newBit)) registers[0xF] = 1;
 
             // Update the display.
-            display[dx][dy] = oldBit ^ newBit;
+            display[(y + j) * DISPLAY_WIDTH + (x + xx)] = oldBit ^ newBit;
         }
 
         yy += 1;

@@ -1,3 +1,6 @@
+#ifndef CHIP8_H
+#define CHIP8_H
+
 #include <cstdint>
 #include <stack>
 #include <string>
@@ -13,7 +16,7 @@
 
 #define FONTSET_SIZE 80
 
-uint8_t fontset[FONTSET_SIZE] = {
+const uint8_t fontset[FONTSET_SIZE] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0,   // 0
     0x20, 0x60, 0x20, 0x20, 0x70,   // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0,   // 2
@@ -35,18 +38,21 @@ uint8_t fontset[FONTSET_SIZE] = {
 class Chip8 {
     public:
         Chip8();
+        void loadRom(const std::string path);
+        void cycle();
+        uint8_t keypad[KEYPAD_SIZE];
+        uint32_t display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
+
+    private:
         uint8_t registers[NUM_REGISTERS];
         uint16_t index;
         uint16_t pc = ROM_START_ADDR;
         uint8_t memory[MEM_SIZE];
         std::stack<uint16_t> callStack;
-        uint8_t keypad[KEYPAD_SIZE];
-        uint32_t display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
         uint8_t delayTimer;
         uint8_t soundTimer;
-    
-    private:
-        void loadRom(const std::string path);
+
         void draw(uint8_t x, uint8_t y, uint8_t n);
-        void cycle();
 };
+
+#endif
