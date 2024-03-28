@@ -10,6 +10,12 @@ Chip8::Chip8() {
     // Load the fontset into memory.
     for (int i = 0; i < FONTSET_SIZE; i++)
         memory[FONTSET_START_ADDR + i] = fontset[i];
+    
+    // Set the display to zeroes.
+    memset(display, 0, sizeof(display));
+
+    // Mark all keys as not pressed.
+    memset(keypad, 0, sizeof(keypad));
 }
 
 void Chip8::loadRom(const string path) {
@@ -28,32 +34,25 @@ void Chip8::loadRom(const string path) {
     }
 }
 
-void Chip8::draw(uint8_t x, uint8_t y, uint8_t n) {
+void Chip8::draw(uint8_t x, uint8_t y, uint8_t height) {
     // Reset the flag register.
     registers[0xF] = 0;
 
-    // Read the sprite (n bytes) at the index register.
-    int yy = 0;
-    bool inBounds = false;
-    for (int j = index; j < index + n; ++j) {
-        for (int xx = 0; xx < 8; ++xx) {
-            // Don't draw sprites partially outside of the screen.
-            if (inBounds && (x + xx >= DISPLAY_WIDTH || y + yy >= DISPLAY_HEIGHT)) break;
-            inBounds = true;
+    unsigned int xx = registers[x] % DISPLAY_WIDTH;
+    unsigned int yy = registers[y] % DISPLAY_HEIGHT;
 
-            // Calculate the bit for this pixel.
-            int newBit = (memory[j] >> (7 - xx)) & 1;
-            int oldBit = display[(y + j) * DISPLAY_WIDTH + (x + xx)];
+    for (int row = 0; row < height; ++row) {
+		for (unsigned int col = 0; col < 8; ++col) {
+			uint8_t spriteBit = memory[index + row] >> (7 - col) & 1;
+			uint32_t* screenBit = &display[(yy + row) * DISPLAY_WIDTH + (xx + col)];
 
-            // Set the flag register.
-            if (oldBit & !(oldBit ^ newBit)) registers[0xF] = 1;
+			if (spriteBit) {
+                registers[0xF] |= *screenBit == 0xFFFFFFFF;  // Mark flag register if this pixel is being flipped off.
+                *screenBit ^= 0xFFFFFFFF;
+			}
+		}
+	}
 
-            // Update the display.
-            display[(y + j) * DISPLAY_WIDTH + (x + xx)] = oldBit ^ newBit;
-        }
-
-        yy += 1;
-    }
 }
 
 void Chip8::cycle() {
@@ -150,18 +149,18 @@ void Chip8::cycle() {
             pc = registers[0] + nnn;
             break;
         case 0xC:   // Set Vx to a random value.
-            registers[x] = rand() % UINT8_MAX;
+            registers[x] = (rand() % UINT8_MAX) & nn;
             break;
         case 0xD:   // Draw.
             draw(x, y, n);
             break;
         case 0xE:   // Skip if key.
             switch (nn) {
-                case 0x9E:  // Skip if key x is pressed.
-                    // TODO.
+                case 0x9E:  // Skip if key Vx is pressed.
+                    if (keypad[registers[x]]) pc += 2;
                     break;
-                case 0xA1:  // Skip if key x is not pressed.
-                    // TODO.
+                case 0xA1:  // Skip if key Vx is not pressed.
+                    if (!keypad[registers[x]]) pc += 2;
                     break;
             }
             break;
@@ -184,8 +183,17 @@ void Chip8::cycle() {
                     break;
                 }
                 case 0x0A:  // Wait until a key is pressed.
-                    // TODO.
+                {
+                    bool keyPressed = false;
+                    for (uint8_t i = 0; i < KEYPAD_SIZE; i++) {
+                        if (keypad[i]) {
+                            keyPressed = true;
+                            break;
+                        }
+                    }
+                    if (!keyPressed) pc -= 2;
                     break;
+                }
                 case 0x29:  // Set index to address of font character Vx.
                     index = FONTSET_START_ADDR + (sizeof(fontset[0]) * registers[x]);
                     break;
@@ -208,7 +216,7 @@ void Chip8::cycle() {
             }
             break;
         default:
-            // TODO: Unknown instruction.
+            // Unknown instruction.
             break;
     }
 
