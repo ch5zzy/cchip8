@@ -15,6 +15,7 @@
 #define ROM_START_ADDR 0x200
 
 #define FONTSET_SIZE 80
+#define FONTSET_CHAR_SIZE 5
 
 const uint8_t fontset[FONTSET_SIZE] = {
 	0xF0, 0x90, 0x90, 0x90, 0xF0,   // 0

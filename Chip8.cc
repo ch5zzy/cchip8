@@ -198,7 +198,7 @@ void Chip8::cycle() {
 					break;
 				}
 				case 0x29:  // Set index to address of font character Vx.
-					index = FONTSET_START_ADDR + (sizeof(fontset[0]) * registers[x]);
+					index = FONTSET_START_ADDR + FONTSET_CHAR_SIZE * registers[x];
 					break;
 				case 0x33:  // Store decimal digits of x at index, index + 1, and index + 2.
 				{
