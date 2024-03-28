@@ -1,6 +1,6 @@
 # cchip8
 
-A simple CHIP-8 emulator written in C++.
+A CHIP-8 emulator written in C++.
 
 ## Compiling
 
