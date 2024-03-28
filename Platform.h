@@ -9,10 +9,10 @@
 
 class Platform {
     public:
-        Platform(char const* title, int windowWidth, int windowHeight, int textureWidth, int textureHeight);
+        Platform(int windowWidth, int windowHeight, int textureWidth, int textureHeight);
         ~Platform();
-        void Update(void const* buffer, int pitch);
-        bool ProcessInput(uint8_t* keys);
+        void update(void const* buffer, int pitch);
+        bool handleInput(uint8_t* keys);
 
     private:
         SDL_Window* window;
