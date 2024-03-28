@@ -1,6 +1,6 @@
 CC := g++
 
-CFLAGS := $(shell sdl2-config --cflags --libs) --std=c++11 -Wall -lm
+CFLAGS := $(shell sdl2-config --cflags --libs) --std=c++17 -Wall -lm
 
 SRCS := Chip8.cc Platform.cc Main.cc
 
