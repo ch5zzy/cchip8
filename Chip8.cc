@@ -24,13 +24,16 @@ void Chip8::loadRom(const string path) {
     if (file.is_open()) {
         // Get the ROM size and validate that it can fit in memory.
         streampos size = file.tellg();
-        if (size > MEM_SIZE - ROM_START_ADDR)
+        if (size > (MEM_SIZE - ROM_START_ADDR) * sizeof(uint8_t))
             throw invalid_argument("ROM size is too large.");
 
         // Read the ROM into memory.
         file.seekg(0, ios::beg);
         file.read((char *) memory + ROM_START_ADDR, size);
         file.close();
+    } else {
+        cerr << "Unable to open ROM.\n";
+        exit(EXIT_FAILURE);
     }
 }
 
