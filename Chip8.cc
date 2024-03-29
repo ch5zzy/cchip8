@@ -104,7 +104,12 @@ void Chip8::cycle() {
 			registers[x] = nn;
 			break;
 		case 7: // Add nn to Vx.
-			registers[x] += nn;
+			{
+				uint16_t sum = registers[x] + nn;
+				registers[x] = (uint8_t) sum;
+				registers[0xF] = sum >= UINT8_MAX;  // Carry.
+				break;
+			}
 			break;
 		case 8: // Arithmetic.
 			switch (n) {
@@ -123,7 +128,7 @@ void Chip8::cycle() {
 				case 4: // Set Vx to Vx + Vy.
 				{
 					uint16_t sum = registers[x] + registers[y];
-					registers[x] = (uint8_t)sum;
+					registers[x] = (uint8_t) sum;
 					registers[0xF] = sum >= UINT8_MAX;  // Carry.
 					break;
 				}
