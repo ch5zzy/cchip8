@@ -40,9 +40,7 @@ bool Platform::handleInput(uint8_t* keys) {
 			{
 				// Mark the key as pressed.
 				key = event.key.keysym.sym;
-				if (keymap.count(key) > 0) {
-					keys[keymap.at(key)] = 1;
-				}
+				if (keymap.count(key) > 0) keys[keymap.at(key)] = 1;
 				break;
 			}
 			case SDL_KEYUP:
